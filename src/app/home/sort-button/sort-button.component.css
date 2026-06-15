@@ -6,9 +6,13 @@
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  transition: transform 0.5s ease;
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
+  color: #88a0c9;
 }
 
 .sort-icon:hover {
-  transform: translateY(-50%) scale(1.1);
+  transform: translateY(-50%) scale(1.08);
+  color: #d8e3ff;
 }

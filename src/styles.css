@@ -3,8 +3,15 @@
 @import "@angular/material/prebuilt-themes/pink-bluegrey.css";
 @import "./assets/css/roboto.css";
 
+:root {
+  color-scheme: dark;
+}
+
 body {
-  background-color: #202124;
+  background:
+    radial-gradient(circle at top left, rgba(62, 112, 255, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(36, 176, 255, 0.1), transparent 24%),
+    linear-gradient(180deg, #060a13 0%, #090f1b 45%, #060911 100%);
   color: white;
 }
 
@@ -28,7 +35,7 @@ body {
 
 .modal-content {
   border-radius: 22px !important;
-  background-color: #292b2c;
+  background-color: #111723;
 }
 
 .selectable {
@@ -57,4 +64,5 @@ body {
 body {
   margin: 0;
   font-family: "Roboto", sans-serif;
+  min-height: 100vh;
 }

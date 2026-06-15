@@ -18,7 +18,13 @@ export class MemoryService {
     private toastr: ToastrService,
     private error: ErrorService,
   ) {
-    invoke("is_container").then((val) => (this.IsContainer = val as boolean));
+    if (this.isTauriAvailable()) {
+      invoke("is_container")
+        .then((val) => (this.IsContainer = val as boolean))
+        .catch(() => (this.IsContainer = false));
+    } else {
+      this.IsContainer = false;
+    }
   }
   public SetNode: Subject<SetNodeDTO> = new Subject();
   public SetFocus: Subject<number> = new Subject();
@@ -44,6 +50,11 @@ export class MemoryService {
   public trayEnabled?: boolean;
   public IsContainer?: boolean;
   public AlwaysAskSave?: boolean;
+  public IsDemoMode = false;
+
+  private isTauriAvailable(): boolean {
+    return typeof window !== "undefined" && !!((window as any).__TAURI__ || (window as any).__TAURI_INTERNALS__);
+  }
 
   async tryIPC<T>(
     successMessage: string,

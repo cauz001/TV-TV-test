@@ -86,7 +86,8 @@ export class SetupComponent {
   }
 
   success() {
-    this.toastr.success(`"${this.source.name}" successfully added`);
+    const name = this.source.name?.trim();
+    this.toastr.success(name ? `"${name}" successfully added` : "Source successfully added");
     this.nav.navigateByUrl("");
   }
 
@@ -121,8 +122,8 @@ export class SetupComponent {
       multiple: false,
       directory: false,
       canCreateDirectories: false,
-      title: "Select Fred TV export file (.otvp)",
-      filters: [{ name: "extension", extensions: ["otvp"] }],
+      title: "Select a custom catalog (.json) or Fred TV export (.otvp)",
+      filters: [{ name: "Custom catalog", extensions: ["json", "otvp"] }],
     });
     if (file == null) {
       return;
@@ -133,7 +134,7 @@ export class SetupComponent {
       await invoke("import", { path: file, nameOverride: nameOverride });
       this.success();
     } catch (e) {
-      this.error.handleError(e, "Invalid URL or credentials. Please try again");
+      this.error.handleError(e, "Invalid catalog file or unsupported stream metadata");
     }
   }
 

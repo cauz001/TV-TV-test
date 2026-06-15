@@ -498,9 +498,14 @@ pub fn search(filters: Filters) -> Result<Vec<Channel>> {
     if filters.series_id.is_some() {
         sql_query += &format!("\nAND series_id = ?");
         baked_params += 1;
-    } else if filters.group_id.is_some() {
-        sql_query += &format!("\nAND group_id = ?");
-        baked_params += 1;
+    } else {
+        if filters.view_type != view_type::FAVORITES && filters.view_type != view_type::HISTORY {
+            sql_query += "\nAND season_id IS NULL";
+        }
+        if filters.group_id.is_some() {
+            sql_query += &format!("\nAND group_id = ?");
+            baked_params += 1;
+        }
     }
     if filters.season.is_some() {
         sql_query += &format!("\nAND season_id = ?");
@@ -786,8 +791,13 @@ fn apply_bulk_channels(
 
     if filters.series_id.is_some() {
         sql_query += "\nAND series_id = ?";
-    } else if filters.group_id.is_some() {
-        sql_query += "\nAND group_id = ?";
+    } else {
+        if filters.view_type != view_type::FAVORITES && filters.view_type != view_type::HISTORY {
+            sql_query += "\nAND season_id IS NULL";
+        }
+        if filters.group_id.is_some() {
+            sql_query += "\nAND group_id = ?";
+        }
     }
     if filters.season.is_some() {
         sql_query += "\nAND season_id = ?";
@@ -1007,7 +1017,7 @@ fn row_to_channel(row: &Row) -> std::result::Result<Channel, rusqlite::Error> {
         url: row.get("url")?,
         favorite: row.get("favorite")?,
         episode_num: row.get("episode_num")?,
-        series_id: None,
+        series_id: row.get("series_id")?,
         group: None,
         stream_id: row.get("stream_id")?,
         tv_archive: row.get("tv_archive")?,
@@ -1495,7 +1505,7 @@ pub fn group_not_empty(id: i64) -> Result<bool> {
 pub fn get_custom_channels(group_id: Option<i64>, source_id: i64) -> Result<Vec<CustomChannel>> {
     let sql = get_conn()?;
     let mut sql_query = r#"
-        SELECT c.name, c.image, c.url, c.media_type, ch.referrer, ch.user_agent, ch.http_origin, ch.ignore_ssl
+        SELECT c.name, c.image, c.url, c.media_type, c.favorite, c.series_id, c.tv_archive, c.season_id, c.episode_num, c.hidden, ch.referrer, ch.user_agent, ch.http_origin, ch.ignore_ssl
         FROM channels c
         LEFT JOIN channel_http_headers ch on ch.channel_id = c.id
         WHERE source_id = ?
@@ -1523,17 +1533,17 @@ fn row_to_custom_channel(row: &Row) -> Result<CustomChannel, rusqlite::Error> {
             image: row.get("image")?,
             url: row.get("url")?,
             media_type: row.get("media_type")?,
-            favorite: false,
+            favorite: row.get("favorite")?,
             group_id: None,
             group: None,
             id: None,
-            series_id: None,
+            series_id: row.get("series_id")?,
             source_id: None,
             stream_id: None,
-            tv_archive: None,
-            season_id: None,
-            episode_num: None,
-            hidden: Some(false),
+            tv_archive: row.get("tv_archive")?,
+            season_id: row.get("season_id")?,
+            episode_num: row.get("episode_num")?,
+            hidden: row.get("hidden")?,
         },
         headers: Some(ChannelHttpHeaders {
             http_origin: row.get("http_origin")?,

@@ -8,6 +8,9 @@ export class Channel {
   url?: string;
   media_type?: MediaType;
   source_id?: number;
+  series_id?: number;
+  season_id?: number;
+  episode_num?: number;
   favorite?: boolean;
   stream_id?: number;
   tv_archive?: boolean;
